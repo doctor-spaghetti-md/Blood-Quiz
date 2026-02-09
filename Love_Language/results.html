@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Your Love Language Result</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Emilys+Candy&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./results.css">
+</head>
+
+<body>
+  <header class="top">
+    <a href="./index.html" class="back">← Retake Quiz</a>
+    <a href="./newsletter.html" class="back">Back to Newsletter</a>
+  </header>
+
+  <main class="wrap">
+    <section class="resultCard" id="resultCard">
+      <!-- JS injects content -->
+    </section>
+  </main>
+
+<script>
+/* ---------- RESULT DATA ---------- */
+
+const RESULTS = {
+  A: {
+    title: "The Forensic Romantic",
+    img: "./images/result-A.jpg",
+    desc: "You express love through surveillance, emotional pattern recognition, and quiet vigilance.",
+    traits: [
+      "Notices everything",
+      "Feels deeply but files it away",
+      "Protective in unsettling ways",
+      "Accidentally intimidating",
+      "Would remember your blood type"
+    ]
+  },
+  B: {
+    title: "The Chaotic Devotee",
+    img: "./images/result-B.jpg",
+    desc: "Your love language is intensity. Sometimes too much. Often unforgettable.",
+    traits: [
+      "Falls fast",
+      "Feels louder than others",
+      "Mistakes adrenaline for romance",
+      "Sends unhinged texts at 2am",
+      "Means well"
+    ]
+  },
+  C: {
+    title: "The Avoidant Angel",
+    img: "./images/result-C.jpg",
+    desc: "You love from a tasteful distance, preferably behind glass.",
+    traits: [
+      "Needs space",
+      "Hates confrontation",
+      "Deeply loyal once attached",
+      "Emotionally bilingual",
+      "Will disappear to regulate"
+    ]
+  },
+  D: {
+    title: "The Soft Control Freak",
+    img: "./images/result-D.jpg",
+    desc: "Your love language is care-taking with a clipboard.",
+    traits: [
+      "Remembers appointments",
+      "Plans emotional logistics",
+      "Anxious but competent",
+      "Reliable under pressure",
+      "Needs reassurance constantly"
+    ]
+  },
+  E: {
+    title: "The Delusional Idealist",
+    img: "./images/result-E.jpg",
+    desc: "You believe love should feel cinematic and mildly dangerous.",
+    traits: [
+      "Romanticizes everything",
+      "Reads meaning into silence",
+      "Believes in signs",
+      "Will ignore red flags",
+      "Feels chosen by fate"
+    ]
+  }
+};
+
+/* ---------- HELPERS ---------- */
+
+function getResultKey(){
+  const params = new URLSearchParams(window.location.search);
+  return params.get("result") || "A";
+}
+
+/* fake percentages + fake bars */
+function randomPercents(keys, winner){
+  let raw = keys.map(() => Math.random());
+  const wIndex = keys.indexOf(winner);
+  raw[wIndex] += 0.6;
+
+  const sum = raw.reduce((a,b)=>a+b,0) || 1;
+  let pct = raw.map(v => Math.round((v / sum) * 100));
+
+  let diff = 100 - pct.reduce((a,b)=>a+b,0);
+  pct[wIndex] += diff;
+
+  let bars = keys.map(() => Math.random());
+  bars[wIndex] += 0.5;
+  const maxBar = Math.max(...bars);
+
+  return keys.map((k,i)=>({
+    key: k,
+    pct: pct[i],
+    bar: Math.round((bars[i] / maxBar) * 100)
+  }));
+}
+
+/* random meaningless dot */
+function randomDot(){
+  return {
+    x: Math.floor(Math.random() * 100),
+    y: Math.floor(Math.random() * 100)
+  };
+}
+
+/* ---------- RENDER ---------- */
+
+const key = getResultKey();
+const data = RESULTS[key];
+const graph = randomPercents(["A","B","C","D","E"], key);
+const dot = randomDot();
+
+const card = document.getElementById("resultCard");
+
+card.innerHTML = `
+  <h1 class="title">${data.title}</h1>
+
+  <img class="hero" src="${data.img}" alt="">
+
+  <p class="desc">${data.desc}</p>
+
+  <div class="graph">
+    ${graph.map(r => `
+      <div class="row ${r.key === key ? "winner" : ""}">
+        <span>${r.key}</span>
+        <div class="track">
+          <div class="fill" style="width:${r.bar}%"></div>
+        </div>
+        <em>${r.pct}%</em>
+      </div>
+    `).join("")}
+  </div>
+
+  <ul class="traits">
+    ${data.traits.map(t => `<li>${t}</li>`).join("")}
+  </ul>
+`;
+</script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+body{
+  margin:0;
+  font-family: "Emilys Candy", cursive;
+  background: radial-gradient(circle at top, #ff9ad5, #1b0030);
+  color:#fff;
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  padding:12px 16px;
+}
+
+.back{
+  color:#fff;
+  text-decoration:none;
+  font-size:.9rem;
+}
+
+.wrap{
+  max-width:720px;
+  margin:0 auto;
+  padding:16px;
+}
+
+.resultCard{
+  background: rgba(0,0,0,.4);
+  border-radius:22px;
+  padding:20px;
+  box-shadow: 0 20px 50px rgba(0,0,0,.5);
+}
+
+.title{
+  font-family:"Bungee", sans-serif;
+  text-align:center;
+  font-size:1.6rem;
+  margin-bottom:12px;
+}
+
+.hero{
+  width:100%;
+  border-radius:16px;
+  margin-bottom:14px;
+}
+
+.desc{
+  text-align:center;
+  margin-bottom:18px;
+}
+
+/* BAR GRAPH */
+
+.graph .row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:8px;
+}
+
+.graph span{
+  width:24px;
+}
+
+.track{
+  flex:1;
+  height:10px;
+  background:rgba(255,255,255,.2);
+  border-radius:999px;
+  overflow:hidden;
+}
+
+.fill{
+  height:100%;
+  background: linear-gradient(90deg, hotpink, cyan);
+}
+
+.row.winner .fill{
+  filter: drop-shadow(0 0 8px hotpink);
+}
+
+.graph em{
+  font-style:normal;
+}
+
+/* SPECTRUM */
+
+.spectrum{
+  position:relative;
+  height:160px;
+  background: linear-gradient(135deg, #ff31cf, #27e6ff);
+  border-radius:16px;
+  margin:22px 0;
+}
+
+.dot{
+  position:absolute;
+  width:14px;
+  height:14px;
+  border-radius:50%;
+  background:#fff;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 12px #fff;
+}
+
+/* TRAITS */
+
+.traits{
+  list-style:none;
+  padding:0;
+  margin:0;
+}
+
+.traits li{
+  padding:8px 0;
+  border-bottom:1px dashed rgba(255,255,255,.3);
+}
