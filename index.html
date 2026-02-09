@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bagelhole Valentines | Love Language Quiz</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Annie+Use+Your+Telescope&family=Borel&family=Bungee&family=Cherry+Bomb+One&family=Chewy&family=Emilys+Candy&family=IM+Fell+DW+Pica:ital@0;1&family=Knewave&family=Life+Savers:wght@400;700;800&family=Luckiest+Guy&family=Meow+Script&family=Monofett&family=Mouse+Memoirs&family=Pacifico&family=Playwrite+US+Trad:wght@100..400&family=Ribeye&family=Rock+3D&family=Sacramento&family=Sour+Gummy:ital,wght@0,100..900;1,100..900&family=TikTok+Sans:opsz,wght@12..36,300..900&family=Twinkle+Star&family=Ultra&display=swap" rel="stylesheet">
+
+  
+
+  <!-- Lottie player (supports .lottie via dotlottie-player) -->
+  <script type="module" src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs"></script>
+
+  <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+  <div class="bg" aria-hidden="true">
+    <div class="glitter"></div>
+  </div>
+
+  <div class="shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="#" aria-label="Home">
+          <div class="logo" aria-hidden="true"></div>
+          <div>Blood Quiz</div>
+        </a>
+
+        <nav class="menu" aria-label="Top menu">
+          <a class="newsletter" href="./newsletter.html">Back to Newsletter</a>
+          <a href="#quiz">Quiz</a>
+          <a href="#results">Results</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <div class="wrap">
+
+        <section class="mast" aria-label="Newsletter title">
+          <h1>Bagelhole Valentines: Soulmates, Holemates, O Tether to my heart:</h1>
+          <div class="ital">
+            This is your last chance to join the club:
+            <a href="https://example.com" target="_blank" rel="noopener noreferrer">The Finger Lakes Bagelhole Club. 2017.</a>
+          </div>
+          <div class="byline">“A Blood Test Quiz from Dr. Spaghetti”</div>
+        </section>
+
+        <section class="card" id="quiz" aria-label="Quiz">
+          <div class="card-top">
+            <div>Don't Waste my Time</div>
+            <div class="progress" aria-label="Progress">
+              <div class="txt"><span id="stepTxt">1</span>/11</div>
+              <div class="bar" aria-hidden="true"><span id="barFill"></span></div>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="bigtitle" aria-label="Main title">
+
+              <h2>WHAT'S YOUR<BR>LOVE LANGUAGE?</h2>
+                  <div class="burst-container">
+    <dotlottie-player
+      class="burstPlayer"
+      src="./animations/Heartbeat.lottie"
+      background="transparent"
+      speed="1"
+      loop="true"
+      autoplay= "true"
+      renderer="svg">
+    </dotlottie-player>
+  </div>
+</div>
+            </div>
+
+            <div id="views"></div>
+
+            <div class="nav" aria-label="Navigation buttons">
+              <button class="btn secondary" id="backBtn" type="button">Back</button>
+              <button class="btn primary" id="nextBtn" type="button" disabled>Next</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" id="results" aria-label="Results" style="margin-top:14px;">
+          <div class="card-top">
+            <div class="pill">Results</div>
+            <div class="progress" aria-hidden="true">
+              <div class="txt">5 possible</div>
+              <div class="bar"><span style="width:100%"></span></div>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="resultsBox" id="resultsBox">
+              <h3>Results</h3>
+              <div class="small">Who are you in the eyes of the lord?</div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+<script>
+/* ---------- Results copy ---------- */
+const RESULTS = {
+  A: { title: "Result A:", blurb: "Text" },
+  B: { title: "Result B:", blurb: "Text" },
+  C: { title: "Result C:", blurb: "Text" },
+  D: { title: "Result D:", blurb: "Text" },
+  E: { title: "Result E:", blurb: "Text" },
+};
+
+function pic(seed){
+  return `https://picsum.photos/seed/${encodeURIComponent(seed)}/250/250`;
+}
+
+/* intentionally arbitrary mapping */
+function bucketFor(qIndex, aIndex){
+  const buckets = ["A","B","C","D","E"];
+  return buckets[(qIndex + aIndex) % buckets.length];
+}
+
+/* fake percentages + independent random bars */
+function randomPercents(keys, winner){
+  let raw = keys.map(() => Math.random());
+  const wIndex = Math.max(0, keys.indexOf(winner));
+  raw[wIndex] += 0.6;
+
+  const sum = raw.reduce((a,b)=>a+b,0) || 1;
+  let percents = raw.map(v => Math.round((v / sum) * 100));
+
+  let diff = 100 - percents.reduce((a,b)=>a+b,0);
+  percents[wIndex] += diff;
+
+  let bars = keys.map(() => Math.random());
+  bars[wIndex] += 0.5;
+  const maxBar = Math.max(...bars) || 1;
+  let widths = bars.map(v => Math.round((v / maxBar) * 100));
+
+  return Object.fromEntries(
+    keys.map((k,i) => [k, { pct: Math.max(0, percents[i]), bar: widths[i] }])
+  );
+}
+
+/* ---------- Quiz structure (NOW WITH PER-QUESTION CHOICES) ---------- */
+function makeQ(id, prompt, blurbs){
+  return {
+    id,
+    prompt,
+    choices: blurbs.map((b, i) => ({
+      blurb: b,
+      img: pic(`${id}a${i+1}`)
+    }))
+  };
+}
+
+const quiz = [
+  makeQ("q1", "What is your relationship status?", [
+    "Just waiting for my lawyer to call and confirm my date to the electric chair", "Under investigation", "I have aspergers syndrome", "Right now, it's just me, this god, these candles, this thai food delivery boy", "…"
+  ]),
+  makeQ("q2", "How old are you?", [
+    "About 10 feet and about three feet in diameter", "In dog years, I would have died approximately four and a half minutes ago", "..."
+  ]),
+  makeQ("q3", "Your partner has said the words &quot;I love you.&quot; It has made you feel good. What do you say back?", [
+    "I don't really think you can call the sounds that come out of my mouth &quot;words.&quot;", "I'm not sure what the right answer is, but whatever it is, I've said the opposite.", "My mom was a botched experimental translation program and, from an early age, I picked up some words and phrases but haven't actually interacted enough with people outside the family for any meaningful language comprehension.", "I blow off their arm and hand."
+  ]),
+    makeQ("q4", "They're sad. How do you fix it?", [
+    "In a measured voice, and in complete and unambiguous language, I state that they cannot act this way", 
+  ]),
+      makeQ("q5", "Their birthday is approaching. You feel anxiety.", [
+    "In a measured voice, and in complete and unambiguous language, I state that they cannot act this way", 
+  ]),
+
+];
+
+
+/* ---------- DOM ---------- */
+const viewsEl    = document.getElementById("views");
+const backBtn    = document.getElementById("backBtn");
+const nextBtn    = document.getElementById("nextBtn");
+const stepTxt    = document.getElementById("stepTxt");
+const barFill    = document.getElementById("barFill");
+const resultsBox = document.getElementById("resultsBox");
+
+let step = 0;
+const selections = {}; // qid -> {answerIndex, bucket}
+
+/* Render */
+function render(){
+  viewsEl.innerHTML = "";
+
+  quiz.forEach((q, qi) => {
+    const view = document.createElement("section");
+    view.className = "view" + (qi === step ? " active" : "");
+    view.dataset.step = String(qi);
+
+    
+    const question = document.createElement("div");
+    question.className = "question";
+    question.textContent = q.prompt;
+    view.appendChild(question);
+
+    const list = document.createElement("div");
+    list.className = "choiceList";
+
+    for(let ai=0; ai<q.choices.length; ai++){
+      const label = document.createElement("label");
+      label.className = "choice";
+
+      // Lottie burst overlay (hidden until click)
+      const burst = document.createElement("div");
+      burst.className = "burst";
+      burst.innerHTML = `
+        <dotlottie-player
+          class="burstPlayer"
+          src="./animations/Flying-hearts.lottie"
+          background="transparent"
+          speed="1"
+          loop="false"
+          autoplay="false"
+          renderer="svg">
+        </dotlottie-player>
+      `;
+
+      const input = document.createElement("input");
+      input.type = "radio";
+      input.name = q.id;
+      input.value = String(ai);
+      input.checked = selections[q.id]?.answerIndex === ai;
+
+input.addEventListener("change", () => {
+  selections[q.id] = { answerIndex: ai, bucket: bucketFor(qi, ai) };
+  updateNavState();
+
+  // Remove glow from any other choices in this question
+  document.querySelectorAll(".choice.neonActive")
+    .forEach(el => el.classList.remove("neonActive"));
+
+  // Add glow to the clicked choice
+  label.classList.add("neonActive");
+
+  // Optional: restart flash animation each click
+  label.classList.remove("neonFlash");
+  void label.offsetWidth;
+  label.classList.add("neonFlash");
+
+  playBurst(label);
+
+  setTimeout(() => {
+    if(step < quiz.length - 1) go(step + 1);
+    else showResults();
+  }, 1400);
+});
+
+
+      // per-question choice text + image
+      const choiceData = q.choices[ai] || {};
+      const headText  = choiceData.head  ?? `Answer ${ai + 1}`;
+      const blurbText = choiceData.blurb ?? "Placeholder blurb text goes here.";
+      const imgSrc    = choiceData.img   ?? pic(`fallback_${qi+1}_${ai+1}`);
+
+      const thumb = document.createElement("div");
+      thumb.className = "choiceThumb";
+
+      const img = document.createElement("img");
+      img.src = imgSrc;
+      img.alt = "";
+      thumb.appendChild(img);
+
+      const txt = document.createElement("div");
+      txt.className = "choiceText";
+
+      const head = document.createElement("p");
+      head.className = "head";
+      head.textContent = headText;
+
+      const blurb = document.createElement("p");
+      blurb.className = "blurb";
+      blurb.textContent = blurbText;
+
+
+      txt.appendChild(blurb);
+
+      label.appendChild(input);
+      label.appendChild(thumb);
+      label.appendChild(txt);
+      label.appendChild(burst);
+
+      list.appendChild(label);
+    }
+
+    view.appendChild(list);
+    viewsEl.appendChild(view);
+  });
+
+  updateNavState();
+}
+
+function playBurst(choiceEl){
+  document.querySelectorAll(".choice.bursting").forEach(el => el.classList.remove("bursting"));
+
+  choiceEl.classList.remove("bursting");
+  void choiceEl.offsetWidth;
+  choiceEl.classList.add("bursting");
+
+  const player = choiceEl.querySelector("dotlottie-player");
+  if(player){
+    try{
+      player.stop();
+      player.seek(0);
+      player.play();
+    }catch(e){}
+  }
+
+  setTimeout(() => choiceEl.classList.remove("bursting"), 1600);
+}
+
+/* Navigation state */
+function updateNavState(){
+  stepTxt.textContent = String(step + 1);
+  const pct = ((step) / (quiz.length - 1)) * 100;
+  barFill.style.width = `${pct}%`;
+
+  backBtn.disabled = step === 0;
+
+  const qid = quiz[step].id;
+  const answered = !!selections[qid];
+  nextBtn.disabled = !answered;
+
+  nextBtn.textContent = (step === quiz.length - 1) ? "Finish" : "Next";
+}
+
+function go(newStep){
+  step = Math.max(0, Math.min(quiz.length - 1, newStep));
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+  const active = document.querySelector(`.view[data-step="${step}"]`);
+  if(active) active.classList.add("active");
+  updateNavState();
+  document.getElementById("quiz").scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+/* Winner */
+function computeWinner(){
+  const tally = {A:0,B:0,C:0,D:0,E:0};
+  for(const q of quiz){
+    if(!selections[q.id]) continue;
+    tally[selections[q.id].bucket] += 1;
+  }
+  let max = -1;
+  let winners = [];
+  for(const k of Object.keys(tally)){
+    if(tally[k] > max){ max = tally[k]; winners = [k]; }
+    else if(tally[k] === max){ winners.push(k); }
+  }
+  return winners[Math.floor(Math.random() * winners.length)];
+}
+
+function showResults(){
+  const firstMissing = quiz.findIndex(q => !selections[q.id]);
+  if(firstMissing !== -1){
+    go(firstMissing);
+    return;
+  }
+
+  const pick = computeWinner();
+
+  // redirect to results page with result key
+  window.location.href = `results.html?result=${pick}`;
+}
+
+const burstContainer = document.querySelector(".bigtitle .burst-container");
+const burstPlayer = burstContainer.querySelector("dotlottie-player");
+
+function triggerBurst() {
+  burstContainer.classList.add("show");
+  try {
+    burstPlayer.stop();
+    burstPlayer.seek(0);
+    burstPlayer.play();
+  } catch(e){}
+
+  // fade out after Lottie finishes (~2s)
+  setTimeout(() => burstContainer.classList.remove("show"), 2000);
+}
+
+
+
+// Example: trigger every h2 animation loop
+document.querySelector(".bigtitle h2").addEventListener("animationiteration", triggerBurst);
+
+/* Buttons */
+backBtn.addEventListener("click", () => go(step - 1));
+nextBtn.addEventListener("click", () => {
+  if(step < quiz.length - 1) go(step + 1);
+  else showResults();
+});
+
+/* Init */
+render();
+go(0);
+</script>
+
+
+</body>
+</html>
